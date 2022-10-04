@@ -18,6 +18,10 @@ class SquareMesh():
         k = Tri2Node_Index_Map.transpose()
         self.Elem=np.concatenate((np.stack((k+Num_Row,k+Num_Row+1,k),axis=1),np.stack((k+1,k,k+Num_Row+1),axis=1)),axis=0)
 
+class CircleMesh():
+    # Generate CircMesh with uniform distance
+    pass
+
 #################### This is the part of draw mesh########################################
 
 class ShowMesh():
@@ -27,7 +31,7 @@ class ShowMesh():
         Dim_Node = Node.shape[1]
         Dim_Elem=Elem.shape[1]
         if (Dim_Node==2) and (Dim_Elem==3): #Planar triangulation
-            Fig=plt.triplot(Node[:,0],Node[:,1],Elem,'color')
+            Fig=plt.triplot(Node[:,0],Node[:,1],Elem)
             #Fig.set_facecolor((0.5,0.9,0.45))
         plt.show()
 

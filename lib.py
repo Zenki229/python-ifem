@@ -4,6 +4,7 @@ import scipy
 from itertools import product
 import matplotlib.pyplot as plt
 import plotly.figure_factory as ff
+from plotly import graph_objects
 
 def accum(accmap, a, func=None, size=None, fill_value=0, dtype=None):
     """

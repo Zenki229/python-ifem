@@ -1,32 +1,39 @@
 from lib import *
 
+# Content
+# SquareMesh: generate mesh for a square
+# ShowMesh: plot 2D mesh
+# AuxStructure: generate auxiliary structure for a 2D mesh
 # Copyright (C) Long Chen.
-######################### This is the part of generate mesh #################################################3#
-class SquareMesh():
-    # generate squaremesh with uniform distance and given nodes [x0,x1,y0,y1]
-    # Here I recommend to divide interval (x0,x1) into M+1 pieces, h = 1/M
-    def __init__(self,square,Mx,My):
-        x0,x1,y0,y1=square
-        # I prefer ndgrid in Matlab, so I use ndgrid here
-        [X,Y]=np.meshgrid(np.linspace(x0,x1,num=Mx+1),np.linspace(y0,y1,num=My+1))
-        self.Node = np.concatenate((X.reshape(-1,1),Y.reshape(-1,1)),axis = 1)
-        Num_Row =X.shape[0]
-        Num_Node=self.Node.shape[0]
-        Tri2Node_Index_Map=np.arange(Num_Node-Num_Row)
-        TopNode= np.arange(Num_Row-1,Num_Node-Num_Row,Num_Row)
-        Tri2Node_Index_Map = np.delete(Tri2Node_Index_Map,TopNode)
-        k = Tri2Node_Index_Map.transpose()
-        self.Elem=np.concatenate((np.stack((k+Num_Row,k+Num_Row+1,k),axis=1),np.stack((k+1,k,k+Num_Row+1),axis=1)),axis=0)
 
-class CircleMesh():
+
+# This is the part of generate mesh
+class SquareMesh:
+    # generate square mesh with (Mx+1)*(My+1) points of square including boundary
+    # Here I recommend to divide interval (x0,x1) into M+1 pieces, h = 1/M
+    def __init__(self, square, Mx, My):
+        x0, x1, y0, y1 = square
+        [x_grid, y_grid] = np.meshgrid(np.linspace(x0, x1, num=Mx + 1), np.linspace(y0, y1, num=My + 1))
+        self.node = np.concatenate((x_grid.reshape(-1, 1), y_grid.reshape(-1, 1)), axis=1)
+        num_row, num_col = x_grid.shape
+        num_node = self.node.shape[0]
+        tri2node = np.arange(num_node - num_col)
+        top_node = np.arange(start=num_col - 1, stop=num_node - num_col, step=num_col)
+        tri2node = np.delete(tri2node, top_node)
+        k = tri2node.transpose()
+        self.elem = np.concatenate((np.stack((k + num_col, k + num_col + 1, k), axis=1), np.stack((k + 1, k, k + num_col + 1), axis=1)), axis=0)
+
+
+class CircleMesh:
     # Generate CircMesh with uniform distance
     pass
 
-#################### This is the part of draw mesh########################################
+# This is the part of draw mesh
 
-class ShowMesh():
-    #Set the param pair('FaceAlpha',value) to change transparency
-    #'FaceColor','EdgeColor'
+
+class ShowMesh:
+    # Set the param pair('FaceAlpha',value) to change transparency
+    # 'FaceColor','EdgeColor'
     def __init__(self,Node,Elem,*args):
         Dim_Node = Node.shape[1]
         Dim_Elem=Elem.shape[1]
@@ -69,6 +76,16 @@ class AuxStructure():
         self.BdEdge2Elem = np.concatenate((self.BdElem[Bd_local_index_first ==0],self.BdElem[Bd_local_index_first == 1],\
                                            self.BdElem[Bd_local_index_first == 2]),axis = 0)
 
+
+class FindBoundary:
+    # find Dirichlet boundary nodes and Neumann edges. The boundary edges  found using bd_flag is counterclockwise
+    def __init__(self, elem, bd_flag):
+        nn = np.max(elem.flatten())
+        num_dim = elem.shape[1]
+        if num_dim == 3:  # triangle
+            total_edge = np.concatenate((elem[:, [1, 2]], elem[:, [2, 0]], elem[:, [0, 1]]), axis=0)
+        elif num_dim == 4:  # quad
+            total_edge = np.concatenate((elem[:, [1, 2]], elem[:, [2, 3]], elem[:, [3, 0]], elem[:, [0, 1]]), axis=0)
 
 
 
